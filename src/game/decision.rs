@@ -26,7 +26,7 @@ impl Decision {
             }
 
             (Decision::Sniff, Decision::Cooperate) => {
-                (Scores::only_i_cooperate(), Scores::only_i_sniff())
+                (Scores::only_i_sniff(), Scores::only_i_cooperate())
             }
         }
     }
