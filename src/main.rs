@@ -3,7 +3,7 @@ pub mod models;
 
 fn main() {
     let tit_tat = models::tit_for_tat::TitForTat;
-    let devil = models::extremists::AlwaysDefect;
+    let devil = models::push_overs::AlwaysDefect;
 
     let game_config = game::game::GameConfig {
         max_rounds: Some(10),

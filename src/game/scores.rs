@@ -1,8 +1,13 @@
-pub trait Scores {
-    fn only_i_sniff() -> u64;
-    fn we_both_cooperate() -> u64;
-    fn we_both_sniff() -> u64;
-    fn only_i_cooperate() -> u64;
+use std::ops::{Add, AddAssign};
+
+pub trait Scores: AddAssign<Self> + AddAssign<u64> + Add<Self> + AddAssign<Self>
+where
+    Self: Sized,
+{
+    fn only_i_sniff() -> Self;
+    fn we_both_cooperate() -> Self;
+    fn we_both_sniff() -> Self;
+    fn only_i_cooperate() -> Self;
 }
 
 pub type DefaultScores = u64;
