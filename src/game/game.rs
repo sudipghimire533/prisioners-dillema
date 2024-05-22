@@ -93,11 +93,7 @@ where
         self.add_round_outcome(game_config, player_one_move, player_two_move);
     }
 
-    pub fn play(&mut self, game_config: &GameConfig)
-    where
-        PlayerOne: player::PlayerConcious<Self>,
-        PlayerTwo: player::PlayerConcious<Self>,
-    {
+    pub fn play(&mut self, game_config: &GameConfig) {
         match game_config.max_rounds {
             Some(max_rounds) => {
                 for _ in 0..max_rounds {

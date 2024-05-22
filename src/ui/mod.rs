@@ -3,7 +3,7 @@ use crate::game::scores::DefaultScores;
 use std::{fs::File, io::Write, path::Path};
 
 use charming::{
-    component::{AngleAxis, Legend, PolarCoordinate, RadiusAxis, Title},
+    component::{AngleAxis, Axis, Legend, PolarCoordinate, RadiusAxis, Title},
     element::{AxisPointer, AxisPointerType, AxisType, CoordinateSystem, Tooltip, Trigger},
     series::Line,
     Chart, HtmlRenderer,
@@ -17,33 +17,30 @@ pub struct ModelComparision {
 
 impl ModelComparision {
     fn draw_chart(&self) -> charming::Chart {
-        let data = (0..=360)
-            .into_iter()
-            .map(|i| {
-                let t = i as f64 / 180.0 * std::f64::consts::PI;
-                let r = (2.0 * t).sin() * (2.0 * t).cos();
-                vec![r, i as f64]
-            })
-            .collect::<Vec<_>>();
+        let title = format!(
+            "Point accumilation for {} vs {} in {} rounds",
+            self.player_one_name,
+            self.player_two_name,
+            self.round_history.len()
+        );
+
+        let player_one_data = self
+            .round_history
+            .iter()
+            .map(|a| a.player_one_point as i64)
+            .collect();
+        let player_two_data = self
+            .round_history
+            .iter()
+            .map(|a| a.player_two_point as i64)
+            .collect();
 
         Chart::new()
-            .title(Title::new().text("Two Value-Axes in Polar"))
-            .legend(Legend::new().data(vec!["line"]))
-            .polar(PolarCoordinate::new().center(vec!["50%", "54%"]))
-            .tooltip(
-                Tooltip::new()
-                    .trigger(Trigger::Axis)
-                    .axis_pointer(AxisPointer::new().type_(AxisPointerType::Cross)),
-            )
-            .angle_axis(AngleAxis::new().type_(AxisType::Value).start_angle(0))
-            .radius_axis(RadiusAxis::new().min(0))
-            .series(
-                Line::new()
-                    .name("line")
-                    .coordinate_system(CoordinateSystem::Polar)
-                    .show_symbol(false)
-                    .data(data),
-            )
+            .title(Title::new().text(title))
+            .x_axis(Axis::new().type_(AxisType::Category))
+            .y_axis(Axis::new().type_(AxisType::Value))
+            .series(Line::new().smooth(0.5).data(player_one_data))
+            .series(Line::new().smooth(0.5).data(player_two_data))
     }
 
     pub fn draw_html(&self, file_path: &Path) -> Result<(), charming::EchartsError> {
