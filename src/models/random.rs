@@ -33,20 +33,20 @@ fn random_negative_decision() -> Decision {
 /// A player that decides what to do on random
 #[derive(Debug, Clone, Copy, Eq, PartialEq, Hash)]
 pub struct RandomDecider;
-impl game::player::PlayerConcious<game::game::Game> for RandomDecider {
-    fn opening_move(&self, _game_config: &game::game::Game) -> Decision {
+impl<P1, P2> game::player::PlayerConcious<game::game::Game::<P1, P2>> for RandomDecider {
+    fn opening_move(&self, _game_config: &game::game::Game::<P1, P2>) -> Decision {
         // decide in random
         random_decision()
     }
 
-    fn decide_first_move(&self, _game_context: &game::game::Game) -> Decision {
+    fn decide_first_move(&self, _game_context: &game::game::Game::<P1, P2>) -> Decision {
         // decide in random
         random_decision()
     }
 
     fn decide_second_move(
         &self,
-        _game_context: &game::game::Game,
+        _game_context: &game::game::Game::<P1, P2>,
         _opponent_decision: &Decision,
     ) -> game::decision::Decision {
         // decide in random
@@ -57,19 +57,19 @@ impl game::player::PlayerConcious<game::game::Game> for RandomDecider {
 /// A player who decides random but with more inclination to cooperation
 #[derive(Debug, Clone, Copy, Eq, PartialEq, Hash)]
 pub struct RandomPositiveDecider;
-impl game::player::PlayerConcious<game::game::Game> for RandomPositiveDecider {
-    fn opening_move(&self, _game_config: &game::game::Game) -> Decision {
+impl<P1, P2> game::player::PlayerConcious<game::game::Game::<P1, P2>> for RandomPositiveDecider {
+    fn opening_move(&self, _game_config: &game::game::Game::<P1, P2>) -> Decision {
         // decide in random
         random_positive_decision()
     }
 
-    fn decide_first_move(&self, _game_context: &game::game::Game) -> Decision {
+    fn decide_first_move(&self, _game_context: &game::game::Game::<P1, P2>) -> Decision {
         random_positive_decision()
     }
 
     fn decide_second_move(
         &self,
-        _game_context: &game::game::Game,
+        _game_context: &game::game::Game::<P1, P2>,
         _opponent_decision: &Decision,
     ) -> Decision {
         random_positive_decision()
@@ -79,19 +79,19 @@ impl game::player::PlayerConcious<game::game::Game> for RandomPositiveDecider {
 /// A player who decides random but with more inclination to sniffing
 #[derive(Debug, Clone, Copy, Eq, PartialEq, Hash)]
 pub struct RandomNegativeDecider;
-impl game::player::PlayerConcious<game::game::Game> for RandomNegativeDecider {
-    fn opening_move(&self, _game_config: &game::game::Game) -> Decision {
+impl<P1, P2> game::player::PlayerConcious<game::game::Game::<P1, P2>> for RandomNegativeDecider {
+    fn opening_move(&self, _game_config: &game::game::Game::<P1, P2>) -> Decision {
         // decide in random
         random_negative_decision()
     }
 
-    fn decide_first_move(&self, _game_context: &game::game::Game) -> Decision {
+    fn decide_first_move(&self, _game_context: &game::game::Game::<P1, P2>) -> Decision {
         random_negative_decision()
     }
 
     fn decide_second_move(
         &self,
-        _game_context: &game::game::Game,
+        _game_context: &game::game::Game::<P1, P2>,
         _opponent_decision: &Decision,
     ) -> Decision {
         random_negative_decision()

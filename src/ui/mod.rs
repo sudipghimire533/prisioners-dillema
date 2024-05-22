@@ -10,9 +10,9 @@ use charming::{
 };
 
 pub struct ModelComparision {
-    pub player_one: (String, DefaultScores),
-    pub player_two: (String, DefaultScores),
-    pub total_rounds: RoundCount,
+    pub player_one_name: String,
+    pub player_two_name: String,
+    pub round_history: crate::game::game::RoundOutcomes,
 }
 
 impl ModelComparision {
@@ -51,7 +51,9 @@ impl ModelComparision {
 
         let title = format!(
             "Prisioners one dillema for {} vs {} in {} rounds",
-            self.player_one.0, self.player_two.0, self.total_rounds
+            self.player_one_name,
+            self.player_two_name,
+            self.round_history.len()
         );
         let mut renderer = HtmlRenderer::new(title, 900, 900);
         renderer.save(&chart, file_path)?;

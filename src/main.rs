@@ -20,20 +20,14 @@ fn main() {
     let devil = models::push_overs::AlwaysDefect;
 
     // 2.Create a game and simulate play
-    let mut tit_tat_and_devil_game = game::game::Game::new();
-    tit_tat_and_devil_game.play(&GAME_CONFIG, tit_tat, devil);
+    let mut tit_tat_and_devil_game = game::game::Game::new(tit_tat, devil);
+    tit_tat_and_devil_game.play(&GAME_CONFIG);
 
     // 3.Create a UI
     let ui_result = ui::ModelComparision {
-        player_one: (
-            "Tit for Tat".to_string(),
-            tit_tat_and_devil_game.player_one_points,
-        ),
-        player_two: (
-            "Devil".to_string(),
-            tit_tat_and_devil_game.player_two_points,
-        ),
-        total_rounds: GAME_CONFIG.max_rounds.unwrap(),
+        player_one_name: "tit for tat".to_string(),
+        player_two_name: "always defect".to_string(),
+        round_history: tit_tat_and_devil_game.decision_history,
     };
 
     // 4. Write a ui in a temporary html file

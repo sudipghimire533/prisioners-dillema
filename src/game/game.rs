@@ -7,6 +7,8 @@ pub type RoundOutcomes = std::collections::VecDeque<RoundOutcome>;
 pub struct RoundOutcome {
     pub player_one_move: Decision,
     pub player_two_move: Decision,
+    pub player_one_point: scores::DefaultScores,
+    pub player_two_point: scores::DefaultScores,
 }
 
 impl RoundOutcome {
@@ -25,24 +27,28 @@ pub struct GameConfig {
     pub max_rounds: Option<RoundCount>,
 }
 
-pub struct Game {
+pub struct Game<PlayerOne, PlayerTwo> {
     // all the decision history
     pub decision_history: RoundOutcomes,
     // which round we are iterating on
     pub ongoing_round: RoundCount,
-    // how many times player one has own
-    pub player_one_points: scores::DefaultScores,
-    // how many times player two has won
-    pub player_two_points: scores::DefaultScores,
+    // Player one
+    pub player_one: PlayerOne,
+    // Player two
+    pub player_two: PlayerTwo,
 }
 
-impl Game {
-    pub fn new() -> Self {
+impl<PlayerOne, PlayerTwo> Game<PlayerOne, PlayerTwo>
+where
+    PlayerOne: player::PlayerConcious<Self>,
+    PlayerTwo: player::PlayerConcious<Self>,
+{
+    pub fn new(player_one: PlayerOne, player_two: PlayerTwo) -> Self {
         Game {
             decision_history: RoundOutcomes::new(),
             ongoing_round: 0,
-            player_one_points: 0,
-            player_two_points: 0,
+            player_one,
+            player_two,
         }
     }
 
@@ -52,9 +58,22 @@ impl Game {
         player_one_move: Decision,
         player_two_move: Decision,
     ) {
+        let (point_one, point_two): (scores::DefaultScores, scores::DefaultScores) =
+            Decision::get_scores(player_one_move, player_two_move);
+
         let outcome = RoundOutcome {
             player_one_move,
             player_two_move,
+            player_one_point: self
+                .decision_history
+                .back()
+                .map(|h| h.player_one_point + point_one)
+                .unwrap_or(point_one),
+            player_two_point: self
+                .decision_history
+                .back()
+                .map(|h| h.player_two_point + point_two)
+                .unwrap_or(point_two),
         };
         // keep decision_history variable in size bound
         if self.decision_history.len() >= game_config.outcome_buf_size {
@@ -63,43 +82,31 @@ impl Game {
         self.decision_history.push_back(outcome);
     }
 
-    pub fn play<PlayerOne, PlayerTwo>(
-        &mut self,
-        game_config: &GameConfig,
-        player_one: PlayerOne,
-        player_two: PlayerTwo,
-    ) where
+    pub fn play_one_round(&mut self, game_config: &GameConfig) {
+        // increase current round by 1
+        self.ongoing_round += 1;
+
+        // construct a outcome
+        let player_one_move = self.player_one.decide_first_move(&self);
+        let player_two_move = self.player_two.decide_second_move(&self, &player_one_move);
+
+        self.add_round_outcome(game_config, player_one_move, player_two_move);
+    }
+
+    pub fn play(&mut self, game_config: &GameConfig)
+    where
         PlayerOne: player::PlayerConcious<Self>,
         PlayerTwo: player::PlayerConcious<Self>,
     {
-        let mut play_round = || {
-            println!("=== Round {} ====", self.ongoing_round);
-
-            // increase current round by 1
-            self.ongoing_round += 1;
-
-            // construct a outcome
-            let player_one_move = player_one.decide_first_move(&self);
-            let player_two_move = player_two.decide_second_move(&self, &player_one_move);
-            let (point_one, point_two): (scores::DefaultScores, scores::DefaultScores) =
-                Decision::get_scores(player_one_move, player_two_move);
-            self.player_one_points += point_one;
-            self.player_two_points += point_two;
-            self.add_round_outcome(game_config, player_one_move, player_two_move);
-            println!("Outcode: {:?}", self.decision_history.back());
-
-            println!("===================")
-        };
-
         match game_config.max_rounds {
             Some(max_rounds) => {
                 for _ in 0..max_rounds {
-                    play_round();
+                    self.play_one_round(game_config)
                 }
             }
 
             None => loop {
-                play_round();
+                self.play_one_round(game_config)
             },
         }
     }

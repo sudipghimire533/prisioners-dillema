@@ -3,13 +3,13 @@ use game::decision::Decision;
 
 #[derive(Debug, Clone, Copy, Eq, PartialEq, Hash)]
 pub struct TitForTat;
-impl game::player::PlayerConcious<game::game::Game> for TitForTat {
-    fn opening_move(&self, _game_config: &game::game::Game) -> Decision {
+impl<P1, P2> game::player::PlayerConcious<game::game::Game<P1, P2>> for TitForTat {
+    fn opening_move(&self, _game_config: &game::game::Game<P1, P2>) -> Decision {
         // ALways start by cooperating
         Decision::Cooperate
     }
 
-    fn decide_first_move(&self, game_context: &game::game::Game) -> Decision {
+    fn decide_first_move(&self, game_context: &game::game::Game<P1, P2>) -> Decision {
         // check the last move in last round
         let opponent_last_move = game_context.decision_history.back().map(|round_outcome| {
             // we are inside first move context this means we are the first mover in each round
@@ -36,7 +36,7 @@ impl game::player::PlayerConcious<game::game::Game> for TitForTat {
 
     fn decide_second_move(
         &self,
-        _game_context: &game::game::Game,
+        _game_context: &game::game::Game<P1, P2>,
         opponent_decision: &Decision,
     ) -> game::decision::Decision {
         // return back the opponent last move
