@@ -20,6 +20,8 @@ impl RoundOutcome {
 
 pub type RoundCount = u64;
 pub struct GameConfig {
+    // How many round outcome should be kept in memory
+    pub outcome_buf_size: usize,
     pub max_rounds: Option<RoundCount>,
 }
 
@@ -44,6 +46,23 @@ impl Game {
         }
     }
 
+    fn add_round_outcome(
+        &mut self,
+        game_config: &GameConfig,
+        player_one_move: Decision,
+        player_two_move: Decision,
+    ) {
+        let outcome = RoundOutcome {
+            player_one_move,
+            player_two_move,
+        };
+        // keep decision_history variable in size bound
+        if self.decision_history.len() >= game_config.outcome_buf_size {
+            self.decision_history.pop_front();
+        }
+        self.decision_history.push_back(outcome);
+    }
+
     pub fn play<PlayerOne, PlayerTwo>(
         &mut self,
         game_config: &GameConfig,
@@ -66,12 +85,8 @@ impl Game {
                 Decision::get_scores(player_one_move, player_two_move);
             self.player_one_points += point_one;
             self.player_two_points += point_two;
-            let round_outcome = RoundOutcome {
-                player_one_move,
-                player_two_move,
-            };
-            println!("Outcode: {round_outcome:?}");
-            self.decision_history.push_back(round_outcome);
+            self.add_round_outcome(game_config, player_one_move, player_two_move);
+            println!("Outcode: {:?}", self.decision_history.back());
 
             println!("===================")
         };

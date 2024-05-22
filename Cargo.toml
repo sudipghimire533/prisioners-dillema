@@ -5,3 +5,6 @@ edition = "2021"
 
 [dependencies]
 rand = "*"
+charming = { version = "*", features = ["ssr"] }
+tempfile = "*"
+webbrowser = "*"
